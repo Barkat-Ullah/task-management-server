@@ -6,7 +6,12 @@ require("dotenv").config();
 
 const port = process.env.PORT || 5000;
 
-app.use(cors()); 
+const corsOptions = {
+  origin: 'https://task-management-system-9b1cf.web.app', // Replace with your frontend URL
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -29,12 +34,12 @@ async function run() {
     const tasksCollection = client.db("taskManagement").collection("tasks");
     // tasks related
 
-    app.get("/tasks", async (req, res) => {
+    app.get("/tasks", cors(corsOptions), async (req, res) => {
       const result = await tasksCollection.find().toArray();
       res.send(result);
     });
 
-    app.get("/tasks/:id", async (req, res) => {
+    app.get("/tasks/:id",cors(corsOptions), async (req, res) => {
       const id = req.params.id;
       const query = {
         _id: new ObjectId(id),
@@ -44,14 +49,14 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/tasks", async (req, res) => {
+    app.post("/tasks", cors(corsOptions), async (req, res) => {
       const task = req.body;
       const result = await tasksCollection.insertOne(task);
       console.log(result);
       res.send(result);
     });
 
-    app.delete("/tasks/:id", async (req, res) => {
+    app.delete("/tasks/:id", cors(corsOptions), async (req, res) => {
       const id = req.params.id;
       const query = {
         _id: new ObjectId(id),
@@ -84,7 +89,7 @@ async function run() {
     //   }
     // });
 
-    app.put("/tasks/:id", async (req, res) => {
+    app.put("/tasks/:id",cors(corsOptions), async (req, res) => {
       const id = req.params.id;
       const data = req.body;
 
