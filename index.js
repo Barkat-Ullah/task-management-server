@@ -5,8 +5,7 @@ const app = express();
 require("dotenv").config();
 
 const port = process.env.PORT || 5000;
-// taskManagement
-// qklvbv0ABP8vp5vd
+
 
 app.use(cors());
 app.use(express.json());
@@ -62,30 +61,55 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/tasks/:id", async (req, res) => {
-        const id = req.params.id;
-        const data = req.body;
-        if (!ObjectId.isValid(id)) {
-            return res.status(400).send('Invalid ObjectId format');
+    app.patch("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const { status } = req.body;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send("Invalid ObjectId format");
+      }
+
+      const filter = { _id: new ObjectId(id) };
+      const updatedTask = { $set: { status } };
+
+      try {
+        const result = await tasksCollection.updateOne(filter, updatedTask);
+
+        if (result.modifiedCount > 0) {
+          res.status(200).send("Task status updated successfully");
+        } else {
+          res.status(404).send("Task not found");
         }
-   
-        const filter = { _id: new ObjectId(id) };
-        const options = { upsert: true };
-        const updatedUSer = {
-          $set: {
-            title: data.title,
-            description: data.description,
-            date:data.date,
-            level:data.level
-          },
-        };
-        const result = await tasksCollection.updateOne(
-          filter,
-          updatedUSer,
-          options
-        );
-        res.send(result);
-      });
+      } catch (error) {
+        res.status(500).send("Internal server error");
+      }
+    });
+
+    app.put("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).send("Invalid ObjectId format");
+      }
+
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedUSer = {
+        $set: {
+          title: data.title,
+          description: data.description,
+          date: data.date,
+          level: data.level,
+        },
+      };
+      const result = await tasksCollection.updateOne(
+        filter,
+        updatedUSer,
+        options
+      );
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
