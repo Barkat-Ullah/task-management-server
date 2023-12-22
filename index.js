@@ -1,13 +1,12 @@
 const express = require("express");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const cors = require("cors");
+const cors = require('cors');
 const app = express();
 require("dotenv").config();
 
 const port = process.env.PORT || 5000;
 
-
-app.use(cors());
+app.use(cors()); 
 app.use(express.json());
 
 // const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -25,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
 
     const tasksCollection = client.db("taskManagement").collection("tasks");
     // tasks related
@@ -61,29 +60,29 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/tasks/:id", async (req, res) => {
-      const id = req.params.id;
-      const { status } = req.body;
+    // app.patch("/tasks/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const { status } = req.body;
 
-      if (!ObjectId.isValid(id)) {
-        return res.status(400).send("Invalid ObjectId format");
-      }
+    //   if (!ObjectId.isValid(id)) {
+    //     return res.status(400).send("Invalid ObjectId format");
+    //   }
 
-      const filter = { _id: new ObjectId(id) };
-      const updatedTask = { $set: { status } };
+    //   const filter = { _id: new ObjectId(id) };
+    //   const updatedTask = { $set: { status } };
 
-      try {
-        const result = await tasksCollection.updateOne(filter, updatedTask);
+    //   try {
+    //     const result = await tasksCollection.updateOne(filter, updatedTask);
 
-        if (result.modifiedCount > 0) {
-          res.status(200).send("Task status updated successfully");
-        } else {
-          res.status(404).send("Task not found");
-        }
-      } catch (error) {
-        res.status(500).send("Internal server error");
-      }
-    });
+    //     if (result.modifiedCount > 0) {
+    //       res.status(200).send("Task status updated successfully");
+    //     } else {
+    //       res.status(404).send("Task not found");
+    //     }
+    //   } catch (error) {
+    //     res.status(500).send("Internal server error");
+    //   }
+    // });
 
     app.put("/tasks/:id", async (req, res) => {
       const id = req.params.id;
@@ -112,10 +111,10 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    // console.log(
-    //   "Pinged your deployment. You successfully connected to MongoDB!"
-    // );
+    await client.db("admin").command({ ping: 1 });
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
